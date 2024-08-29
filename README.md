@@ -12,6 +12,7 @@ has to potential to be crossplatform bc flet be cool like that
  ///old tkinter version///
 
  
- ![Screenshot 2024-08-18 022827](https://github.com/user-attachments/assets/1720acf3-e002-433f-87d2-5e9a4f52dea2)
+ ![Screenshot 2024-08-18 022807](https://github.com/user-attachments/assets/9e90266f-264b-405c-a078-fe567f1c85b9)
+
 
 the batch file installs ffmpeg and yt-dlp (i left out spot_dl for some reason). might make a macos version 
