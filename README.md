@@ -1,5 +1,5 @@
 # yt-dlp_GUI
-a simple GUI for yt-dlp and also spot_dl
+a simple GUI for yt-dlp and spot_dl
 
 
 now remastered with flet. Also now automatically selects the download folder (incredible features ik)
@@ -16,3 +16,4 @@ has to potential to be crossplatform bc flet be cool like that
 
 
 the batch file installs ffmpeg and yt-dlp (i left out spot_dl for some reason). might make a macos version #no longer need to ha
+issues: spotdl doesnt work, no download notifications/status
