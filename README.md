@@ -16,4 +16,4 @@ has potential to be crossplatform bc flet be cool like that
 
 
 the batch file installs ffmpeg and yt-dlp (i left out spot_dl for some reason). might make a macos version #no longer need to ha
-issues: spotdl doesnt work, no download notifications/status
+[issues: spotdl doesnt work, no download notifications/status]
