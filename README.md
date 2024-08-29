@@ -4,7 +4,7 @@ a simple GUI for yt-dlp and spot_dl
 
 now remastered with flet. Also now automatically selects the download folder (incredible features ik)
 
-has to potential to be crossplatform bc flet be cool like that
+has potential to be crossplatform bc flet be cool like that
 
 ![Screenshot 2024-08-29 075125](https://github.com/user-attachments/assets/cda537e1-83ee-4fae-8769-fb12546ffb57)
 
