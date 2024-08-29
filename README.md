@@ -15,4 +15,4 @@ has to potential to be crossplatform bc flet be cool like that
  ![Screenshot 2024-08-18 022807](https://github.com/user-attachments/assets/9e90266f-264b-405c-a078-fe567f1c85b9)
 
 
-the batch file installs ffmpeg and yt-dlp (i left out spot_dl for some reason). might make a macos version 
+the batch file installs ffmpeg and yt-dlp (i left out spot_dl for some reason). might make a macos version #no longer need to ha
