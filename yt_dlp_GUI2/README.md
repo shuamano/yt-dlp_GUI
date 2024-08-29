@@ -1,4 +1,5 @@
 yt-dlp_GUI moved over to flet.
+done in 1 day
 
 pretty nice idk
 
