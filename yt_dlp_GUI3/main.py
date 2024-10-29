@@ -13,8 +13,8 @@ si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 CREATE_NO_WINDOW = 0x08000000
 
 #spotify api stuff
-client_id = '0cc3fdffe0f84a1c80a2b2cdf4df1390'
-client_secret = 'e60c4550c2fd442ebebb8c7b3fbdd4fa'
+client_id = ''
+client_secret = ''
 
 #add every link to this list, download them all when selected, then clear it
 song_list = []
