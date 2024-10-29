@@ -4,9 +4,10 @@ a simple GUI for yt-dlp and spot_dl
 
 now remastered with flet. Also now automatically selects the download folder (incredible features ik)
 
-has potential to be crossplatform bc flet be cool like that
+![Screenshot 2024-10-29 022447](https://github.com/user-attachments/assets/3a72f7a8-b8c8-4923-8c4f-a84806a1121e)
 
-![Screenshot 2024-08-29 075125](https://github.com/user-attachments/assets/cda537e1-83ee-4fae-8769-fb12546ffb57)
+
+
 
 
  ///old tkinter version///
