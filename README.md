@@ -1,5 +1,5 @@
 # yt-dlp_GUI
-a simple GUI for yt-dlp and spotdl
+##a simple GUI for yt-dlp and spotdl
 
 uses spotdl for spotify and ytmusic, and yt-dlp has to be selected for youtube videos. 
 enter a link,
