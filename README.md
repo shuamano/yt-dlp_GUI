@@ -2,7 +2,7 @@
 
 ## A simple GUI for yt-dlp and spotdl (work in progress)
 
-* uses spotdl for spotify and ytmusic
+
 * enter a link
 * add it the queue
 * configure download settings, download path, metadata etc
