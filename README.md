@@ -8,8 +8,6 @@
 * configure download settings, download path, metadata etc
 * download or remove songs/videos in the queue
 
- If you are downloading something other than music, manually select yt-dlp as the 'downloader client'.
-
 ![Screenshot 2024-10-29 022447](https://github.com/user-attachments/assets/3a72f7a8-b8c8-4923-8c4f-a84806a1121e)
 
 
