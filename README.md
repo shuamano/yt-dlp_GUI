@@ -10,7 +10,8 @@
 
 
 
-![Screenshot 2024-11-20 230523](https://github.com/user-attachments/assets/81b80950-b8ed-4f9f-8d7d-4b8378829bbd)
+![Screenshot 2024-11-21 111650](https://github.com/user-attachments/assets/0cb98d9d-d838-4a20-8377-50b24611f04f)
+
 
 
 ### Installation:
