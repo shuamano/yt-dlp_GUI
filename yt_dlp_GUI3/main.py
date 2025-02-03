@@ -1,4 +1,6 @@
-#v.0.5 11/20/24 11:20 pm FAKECOPYRIGHT Shua Manory
+#v.0.6, 12.12.24 7:17pm 
+#this is some of the shittiest code ever written frfr
+
 import flet as ft
 import subprocess
 import os
@@ -7,24 +9,55 @@ from base64 import b64encode
 import yt_dlp
 from humanfriendly import format_timespan, format_size
 import time
+import json
+from pathlib import Path
 
 home_dir = os.path.expanduser("~")
 downloads_folder = os.path.join(home_dir, "Downloads")
-download_command_line = ""
-si = subprocess.STARTUPINFO()
-si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
 CREATE_NO_WINDOW = 0x08000000
 
 #spotify api stuff
-client_id = '0cc3fdffe0f84a1c80a2b2cdf4df1390'
-client_secret = 'e60c4550c2fd442ebebb8c7b3fbdd4fa'
+#client_id = '0cc3fdffe0f84a1c80a2b2cdf4df1390'
+#client_secret = 'e60c4550c2fd442ebebb8c7b3fbdd4fa'
 
 #add every link to this list, download them all when selected, then clear it
 song_list = []
 number_of_songs = 0
 added_controls = []
+tlds = ['.com', '.org', '.net', '.edu', '.gov', '.io', 'to', '.be']
+color_controls = []
 
-
+# check if a config file has already been created. if yes, assign everything to its configuration, if not use defualt config
+if Path('yt-dlp_GUI_settings.json').is_file():
+    with open("yt-dlp_GUI_settings.json", mode="r", encoding="utf-8") as read_file:
+        settings_stored = json.load(read_file)
+    client_id = settings_stored["client_id"]
+    client_secret = settings_stored["client_secret"]
+    theme_setting = settings_stored["theme"]
+    transparency_setting = settings_stored['transparency']
+    
+    if theme_setting == True:
+        main_color= ft.colors.GREEN
+        secondary_color = ft.colors.BLACK26
+        bg_color = ft.colors.BLACK12
+        preview_color  = ft.colors.BLACK54
+    else:
+        main_color = ft.colors.BLUE
+        secondary_color = ft.colors.WHITE10
+        bg_color = ft.colors.WHITE10
+        preview_color = ft.colors.WHITE10
+else:
+    #default config
+    client_id = '0cc3fdffe0f84a1c80a2b2cdf4df1390'
+    client_secret = 'e60c4550c2fd442ebebb8c7b3fbdd4fa'
+    theme_setting = True
+    transparency_setting = 0.0
+    main_color= ft.colors.GREEN
+    secondary_color = ft.colors.BLACK26
+    bg_color = ft.colors.BLACK12
+    preview_color  = ft.colors.BLACK54
+    
 
 def get_spotify_data(link, token):
     
@@ -63,8 +96,11 @@ def get_client_credentials_token(client_id, client_secret):
     access_token = response.json()['access_token']
     return access_token
 
-token_response = get_client_credentials_token(client_id, client_secret)
-access_token = token_response
+try:
+    token_response = get_client_credentials_token(client_id, client_secret)
+    access_token = token_response
+except:
+    print("bad spotify credentials")
 
 def spotify_link():
     global added_controls
@@ -112,7 +148,7 @@ def spotify_link():
                     ft.Container( #control 3
                         content=ft.Column(
                             controls=[
-                            ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: indivudual_download(link)),
+                            ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: indivudual_download(link)),
                             ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: remove_control(link))
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -125,7 +161,7 @@ def spotify_link():
                 height=110,
                 padding=ft.Padding(left = 5, top = 5, bottom =5, right = 10),
                 border_radius=5,
-                bgcolor=ft.colors.BLACK54,
+                bgcolor=preview_color,
                 alignment=ft.alignment.center))
 
     #if its a playlist:    
@@ -166,7 +202,7 @@ def spotify_link():
                     ft.Container( #control 3
                         content=ft.Column(
                             controls=[
-                            ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: indivudual_download(link)),
+                            ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: indivudual_download(link)),
                             ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: remove_control(link))
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -179,7 +215,7 @@ def spotify_link():
                 height=110,
                 padding=ft.Padding(left = 5, top = 5, bottom =5, right = 10),
                 border_radius=5,
-                bgcolor=ft.colors.BLACK54,
+                bgcolor=preview_color,
                 alignment=ft.alignment.center))
         
     else: #for albums
@@ -213,7 +249,7 @@ def spotify_link():
                     ft.Container( #control 3
                         content=ft.Column(
                             controls=[
-                            ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: indivudual_download(link)),
+                            ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: indivudual_download(link)),
                             ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150, on_click=lambda e, link=link_entry.value,  id=unique_id: remove_control(link))
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -226,7 +262,7 @@ def spotify_link():
                 height=110,
                 padding=ft.Padding(left = 5, top = 5, bottom =5, right = 10),
                 border_radius=5,
-                bgcolor=ft.colors.BLACK54,
+                bgcolor=preview_color,
                 alignment=ft.alignment.center))
         
     added_controls.append((unique_id, preview_tab))
@@ -277,7 +313,7 @@ def youtube_link():
                         ft.Container( #control 3
                             content=ft.Column(
                                 controls=[
-                                ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
+                                ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
                                 ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: remove_control(link))
                                     ],
                                     alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -290,7 +326,7 @@ def youtube_link():
                     height=110,
                     padding=ft.Padding(left = 5, top = 5, bottom =5, right = 10),
                     border_radius=5,
-                    bgcolor=ft.colors.BLACK54,
+                    bgcolor=preview_color,
                     alignment=ft.alignment.center))
 
         else: #if its an album or playlist
@@ -325,7 +361,7 @@ def youtube_link():
                         ft.Container( #control 3
                             content=ft.Column(
                                 controls=[
-                                ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
+                                ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
                                 ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: remove_control(link))
                                     ],
                                     alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -338,7 +374,7 @@ def youtube_link():
                     height=110,
                     padding=ft.Padding(left = 5, top = 5, bottom =5, right = 10),
                     border_radius=5,
-                    bgcolor=ft.colors.BLACK54,
+                    bgcolor=preview_color,
                     alignment=ft.alignment.center))
             
     else: #if its just a video
@@ -380,7 +416,7 @@ def youtube_link():
                             ft.Container( #control 3
                                 content=ft.Column(
                                     controls=[
-                                    ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
+                                    ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
                                     ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: remove_control(link))
                                         ],
                                         alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -393,7 +429,7 @@ def youtube_link():
                         height=110,
                         padding=ft.Padding(left = 5, top = 5, bottom =5, right = 10),
                         border_radius=5,
-                        bgcolor=ft.colors.BLACK54,
+                        bgcolor=preview_color,
                         alignment=ft.alignment.center))
 
         else:  #if its a normal yt playlist
@@ -429,7 +465,7 @@ def youtube_link():
                         ft.Container( #control 3
                             content=ft.Column(
                                 controls=[
-                                ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
+                                ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
                                 ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150, on_click=lambda e, link=link_entry.value, id=unique_id: remove_control(link))
                                     ],
                                     alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -442,7 +478,7 @@ def youtube_link():
                     height=110,
                     padding=ft.Padding(left = 5, top = 5, bottom =5, right = 10),
                     border_radius=5,
-                    bgcolor=ft.colors.BLACK54,
+                    bgcolor=preview_color,
                     alignment=ft.alignment.center))
 
     #add the newly created preview_tab        
@@ -450,6 +486,7 @@ def youtube_link():
     if preview_placeholder in lv.content.controls:
         lv.content.controls.remove(preview_placeholder)
     lv.content.controls.insert(0, preview_tab)
+
 
 def main(page: ft.Page):
     page.window.width = 700
@@ -459,15 +496,87 @@ def main(page: ft.Page):
     page.window.max_width = 700
     page.window.max_height = 2560
 
-    page.title = "yt-dlp_GUI3 (©️ Mauhs lol)"
-    page.icon = "C:/Users/shuam/Downloads/yt_dlp_GUI2_icon.png"       
-    #page.window.opacity = 0.95
-    
+    page.title = "yt-dlp_GUIv.0.6 (©️ Mauhs lol)"
+    #page.icon = "C:/Users/shuam/Downloads/yt_dlp_GUI2_icon.png"       
+    preview_loading=ft.Container(ft.Row([ft.Text('Loading Preview...', size=16), ft.ProgressRing(color='green', width=30, height=30),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10,)
+
+    #pre-declaring some functions because I dont know to how to code
     global draw_main_page
     def draw_main_page():
         pass
     def on_download_client_choice():
         pass
+    
+    #appearance stuff
+    def update_appearance(e):
+        global secondary_color, bg_color, main_color, preview_color
+        transparent_value =  appearance_settings.content.content.controls[1].content.controls[1].controls[1].value
+        theme_selection = appearance_settings.content.content.controls[1].content.controls[0].controls[1].value
+        client_id = spotify_api_settings.content.content.controls[1].content.controls[0].value
+        client_secret = spotify_api_settings.content.content.controls[1].content.controls[1].value
+
+        #check what the screen transparency should be
+        if transparent_value != 0:    
+            page.window.opacity = transparent_value
+        else:
+            page.window.opacity = 1
+        #check what theme is selected and change the colors to correct values
+        if theme_selection == True:
+            page.theme_mode = 'dark'
+            main_color = ft.colors.GREEN
+            secondary_color = ft.colors.BLACK26
+            bg_color = ft.colors.BLACK12
+            preview_color  = ft.colors.BLACK54
+            
+        else:
+            page.theme_mode = 'light'
+            main_color = ft.colors.BLUE
+            secondary_color = ft.colors.WHITE10
+            bg_color = ft.colors.WHITE10
+            preview_color = ft.colors.WHITE10
+
+        #reassign all the controls with their new colors
+        for control in color_controls:
+            if hasattr(control, 'style') and hasattr(control.style, 'color'):
+                control.style.color = main_color
+                control.style.bgcolor = secondary_color
+            if hasattr(control, 'icon_color'):
+                control.icon_color = main_color
+            if hasattr(control, 'active_color'):
+                control.active_color = main_color
+            else:
+                control.color = main_color
+        for control in main_control_bar.content.content.controls:
+            if hasattr(control, 'style') and hasattr(control.style, 'color'):
+                control.style.bgcolor = secondary_color        
+                clear_url_entry.style.bgcolor = secondary_color
+            else:
+                control.bgcolor = secondary_color
+                
+        preview_loading.content.controls[1].color = main_color
+        finished_status.content.controls[1].style.color = main_color
+        try:    
+            for control in lv.content.controls:
+                control.content.content.controls[2].content.controls[0].style.color = main_color
+                control.content.bgcolor=preview_color
+        except:
+            pass
+        settings_back_button.style.color = main_color
+        settings_text.color = main_color
+        spotify_api_settings.content.content.controls[0].color = main_color
+        appearance_settings.content.content.controls[0].color = main_color
+        appearance_settings.content.content.controls[1].content.controls[1].controls[1].active_color = main_color
+        appearance_settings.content.content.controls[1].content.controls[0].controls[1].active_color = main_color
+        
+        #save the settings in a json
+        settings_config = {"theme": theme_selection, "transparency": transparent_value, "client_id": client_id, "client_secret": client_secret}
+        with open("yt-dlp_GUI_settings.json", mode="w", encoding="utf-8") as write_file:
+            json.dump(settings_config, write_file)
+
+        #enables this function to run when its not called from the settings page (duh)
+        if settings_page in page.controls:
+            settings_page.update()
+        page.update()
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
         global downloads_folder
@@ -479,7 +588,8 @@ def main(page: ft.Page):
     page.overlay.append(file_picker)
     page.update()
     
-    edit_path_button = ft.IconButton(icon=ft.icons.EDIT, on_click=lambda _: file_picker.get_directory_path(), icon_color='green')
+    #ui elements for download path stuff
+    edit_path_button = ft.IconButton(icon=ft.icons.EDIT, on_click=lambda _: file_picker.get_directory_path(), icon_color=main_color)
     output_path = ft.TextField(label="Output destination", read_only=True, value=downloads_folder, width='250')
 
     def on_format_select(e):
@@ -500,6 +610,7 @@ def main(page: ft.Page):
            row_4.controls.append(align_unselected_quality)
         page.update()
     
+    #all the dropdown menus
     downloader = ft.Dropdown(
     label="Downloader Client",
     options=[
@@ -538,6 +649,7 @@ def main(page: ft.Page):
     options=[
         ft.dropdown.Option("select a format first")], width="350", disabled=True)
 
+    #this goes in lv when song_list is empty
     global preview_placeholder
     preview_placeholder = ft.Card(
         content=ft.Container(
@@ -592,10 +704,13 @@ def main(page: ft.Page):
             bgcolor=ft.colors.BLACK54,
             alignment=ft.alignment.center))
     
+    #this listview holds all the song previews
     global lv
     lv = ft.Card(content=ft.ListView(spacing=1, padding=5, auto_scroll=False, expand=True),height=200, expand=True)
     lv.content.controls.append(preview_placeholder)
     #lv.controls.append(preview_tab_example)
+    
+    #this is the stuff shown to display terminal/cmd output of yt-dlp/spotdl
     terminal = ft.Card(content=ft.ListView(spacing=1, padding=5, auto_scroll=True, expand=False, height='50'))
     
 
@@ -616,110 +731,185 @@ def main(page: ft.Page):
         alignment=ft.alignment.top_right  # Aligns to the right
     )
       
-    add_metadata = ft.Switch(label="  Include metadata", active_color='green', value=True)
-    embed_thumbnail = ft.Switch(label="  Embed thumbnail/album art", active_color='green', value=True)
+    add_metadata = ft.Switch(label="  Include metadata", active_color=main_color, value=True)
+    embed_thumbnail = ft.Switch(label="  Embed thumbnail/album art", active_color=main_color, value=True)
     global link_entry
     link_entry = ft.TextField(label="song, album, playlist, or video", width="470", height='50')
+    url_text = ft.Text(value=" URL:", color=main_color, weight=ft.FontWeight.BOLD, size=15)
     
-    settings_text=ft.Text('Settings', color="green", weight=ft.FontWeight.BOLD, size=20)
+    #settings stuff here
+    settings_spacer = ft.Container(ft.Row(expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=500, height=50, padding=ft.Padding(left=10, top=0, right=10, bottom=5))
+    settings_text=ft.Text('Settings', color=main_color, weight=ft.FontWeight.BOLD, size=20)
     settings_list=ft.ListView(spacing=1, padding=5, auto_scroll=False, expand=True)
-    settings_back_button = ft.IconButton(height="50", width=50, icon=ft.icons.ARROW_BACK, style=ft.ButtonStyle(color=ft.colors.GREEN), on_click=lambda e: draw_main_page())
-    settings_page = ft.Container(content=ft.Column([ft.Row([settings_back_button, settings_text,],alignment=ft.MainAxisAlignment.SPACE_BETWEEN, height=50), settings_list]), padding=ft.Padding(left=5, top=5, right=15, bottom=5),width=700)
+    settings_back_button = ft.IconButton(height="50", width=50, icon=ft.icons.ARROW_BACK, style=ft.ButtonStyle(color=main_color), on_click=lambda e: draw_main_page())
+    settings_page = ft.Container(content=ft.Column([ft.Row([settings_back_button, settings_spacer, settings_text,],alignment=ft.MainAxisAlignment.SPACE_BETWEEN, height=50), settings_list]), padding=ft.Padding(left=5, top=5, right=5, bottom=5),width=700)
     
-    finished_status=ft.Container(ft.Row([ft.Text('Finished.', size=16), ft.IconButton(icon=ft.icons.CHECK, style=ft.ButtonStyle(color=ft.colors.GREEN), disabled=True)],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5))
+    spotify_api_settings = ft.Card(content=ft.Container(content=ft.Column([ft.Text(' Spotify API Credentials', color=main_color, theme_style=ft.TextThemeStyle.TITLE_MEDIUM), ft.Container(content=ft.Column(controls=[ft.TextField(label='Client ID', value=client_id), ft.TextField(label='Client Secret', value=client_secret)] ), padding=ft.Padding(left=0, top=10, right=0, bottom=0)) ], width=700,), padding=10, ))
+    #client_id = spotify_api_settings.content.content.controls[1].content.controls[0].value
+    #client_secret = spotify_api_settings.content.content.controls[1].content.controls[1].value
+    appearance_settings = ft.Card(ft.Container(ft.Column([ft.Text(' Appearance', color=main_color, theme_style=ft.TextThemeStyle.TITLE_MEDIUM), ft.Container(ft.Column([ft.Row([ft.Text('Dark Mode ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=theme_setting, on_change=update_appearance)]), ft.Row([ft.Text('Transparency ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Slider(min=0, max=100, divisions=10, label="{value}%", active_color=main_color, on_change=update_appearance, value=transparency_setting)]) ]), padding=ft.Padding(left=5, top=5, right=0, bottom=0))]), padding=10))
+    
+    settings_list.controls.append(spotify_api_settings)
+    settings_list.controls.append(appearance_settings)
 
+    #this is placed in the status bar whenever a process finishes
+    finished_status=ft.Container(ft.Row([ft.Text('Finished.', size=16), ft.IconButton(icon=ft.icons.CHECK, style=ft.ButtonStyle(color=main_color), disabled=True)],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=bg_color,padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10,)
+
+    #this command determines download options and then runs the compiles command (downloads stuff!)
     global on_download
     def on_download(link):
-        global download_command_line 
+        #clear the string used for compiling the choices in subprocess.call
+        download_command_options = ''
+    
+        options={'outtmpl': f'{downloads_folder}/%(title)s.%(ext)s'}
+
         format_selection = format_choice.value
         downloader_selection = downloader.value
         audio_quality_selection = audio_quality.value
         video_quality_selection = video_quality.value
         embed_thumbnail_selection = embed_thumbnail.value
         add_metadata_selection = add_metadata.value
+        
         #client choice
         if downloader_selection == 'spotdl':
+            command_list = ['spotdl']
             if format_selection == 'm4a':
-                download_command_line += '--format m4a '
+                download_command_options += '--format m4a '
+                command_list += ['--format', 'm4a']
             elif format_selection == 'mp3':
-                download_command_line += '--format mp3 '
+                download_command_options += '--format mp3 '
+                command_list += ['--format', 'mp3']
             elif format_selection == 'flac':
-                download_command_line += '--format flac '
+                download_command_options += '--format flac '
+                command_list += ['--format', 'flac']
             elif format_selection == 'opus':
-                download_command_line += '--format opus '
+                download_command_options += '--format opus '
+                command_list += ['--format', 'opus']
             else:
                 pass
             if audio_quality_selection == '128 kbps':
-                download_command_line += '--bitrate 128K '
+                download_command_options += '--bitrate 128K '
+                command_list += ['--bitrate', '128k']
             elif audio_quality_selection == '160 kbps':
-                download_command_line += '--bitrate 160K '
+                download_command_options += '--bitrate 160K '
+                command_list += ['--bitrate', '160k']
             elif audio_quality_selection == '80 kbps':
-                download_command_line += '--bitrate 80K '
+                download_command_options += '--bitrate 80K '
+                command_list += ['--bitrate', '80k']
             else:
                 pass
-            subprocess.call(f'spotdl {download_command_line} --output {downloads_folder} {link}',  shell=True, text=True)
+            command_list += ['--output', downloads_folder, link]
+            command = f'spotdl {download_command_options} --output {downloads_folder} {link}'
+            
+            subprocess.run(command_list, shell=True, text=True) #works
+            #subprocess.Popen(command_list, stdout=subprocess.PIPE, text=True, shell=True) #doesnt work
+            #subprocess.call(command, text=True, shell=True) #works
             return
         
         if downloader_selection == 'yt-dlp':
+            command_list = ['yt-dlp']
             #format choice
             if format_selection == 'mp4':
-                download_command_line += '--merge-output-format mp4 '
+                download_command_options += '--merge-output-format mp4 '
+                options[format] = 'bestvideo+bestaudio'
+                command_list += ['--merge-output-format', 'mp4']
+
             elif format_selection == 'm4a':
-                download_command_line += '-x --audio-format m4a '
+                download_command_options += '-x --audio-format m4a '
+                options[format] = 'bestaudio[ext=m4a]'
+                command_list += ['-x', '--audio-format', 'm4a']
             elif format_selection == 'mp3':
-                download_command_line += '-x --audio-format mp3 '
+                download_command_options += '-x --audio-format mp3 '
+                command_list += ['-x', '--audio-format', 'mp3']
+                options[format] = 'bestaudio[ext=mp3]'
+
             elif format_selection == 'flac':
-                download_command_line += '-x --audio-format flac '
+                download_command_options += '-x --audio-format flac '
+                command_list += ['-x', '--audio-format', 'flac']
+                options[format] = 'bestaudio[ext=flac]'
+
             elif format_selection == 'opus':
-                download_command_line += '-x --audio-format opus '
+                download_command_options += '-x --audio-format opus '
+                command_list += ['-x', '--audio-format', 'opus']
+                options[format] = 'bestaudio[ext=opus]'
+
             else:
                 pass
         
             #video quality choice
             if video_quality_selection == '1080p':
-                download_command_line += '-f 137+bestaudio '
+                download_command_options += '-f 137+bestaudio '
+                command_list += ['-f', '137+bestaudio']
             elif video_quality_selection == '720p':
-                download_command_line += '-f 136+bestaudio '
+                download_command_options += '-f 136+bestaudio '
+                command_list += ['-f', '136+bestaudio']
             elif video_quality_selection == '480p':
-                download_command_line += '-f 135+bestaudio '
+                download_command_options += '-f 135+bestaudio '
+                command_list += ['-f', '135+bestaudio']
             elif video_quality_selection == '360p':
-                download_command_line += '-f 134+bestaudio '
+                download_command_options += '-f 134+bestaudio '
+                command_list += ['-f', '134+bestaudio']
             else:
                 pass
 
             #audio quality choice
             if audio_quality_selection == '128 kbps':
-                download_command_line += '--audio-quality 128K '
+                download_command_options += '--audio-quality 128K '
+                command_list += ['--audio-quality', '128k']
             elif audio_quality_selection == '160 kbps':
-                download_command_line += '--audio-quality 160K '
+                download_command_options += '--audio-quality 160K '
+                command_list += ['--audio-quality', '160k']
             elif audio_quality_selection == '70 kbps':
-                download_command_line += '--audio-quality 70K '
+                download_command_options += '--audio-quality 70K '
+                command_list += ['--audio-quality', '70k']
             else:
                 pass
             if add_metadata_selection == True:
-                download_command_line += '--add-metadata '
+                download_command_options += '--add-metadata '
+                command_list.append('--add-metadata')
             if embed_thumbnail_selection == True:
-                download_command_line += '--embed-thumbnail '
+                download_command_options += '--embed-thumbnail '
+                command_list.append('--embed-thumbnail')
             else:
                 pass
-            subprocess.call(f'yt-dlp {download_command_line} -P {downloads_folder} {link}',  shell=True, text=True)
+            
+            command_list += ['-P', downloads_folder, link]
+            command = f'yt-dlp {download_command_options} -P {downloads_folder} {link}'
+            
+            subprocess.run(command_list, shell=True, text=True)
+            #subprocess.call(command, text=True, shell=True)
             return
-        else:
+
+        else: # Auto mode 
             if 'music' in link or 'spotify' in link:
-                subprocess.call(f'spotdl --output {downloads_folder} {link}',  shell=True, text=True)
+                command_list = ['spotdl', '--output', downloads_folder, link]
+                subprocess.run(command_list, shell=True, text=True)
             else:
-                subprocess.call(f'yt-dlp -P {downloads_folder} --add-metadata {link}',  shell=True, text=True)
-        
-        print(download_command_line)
-        download_command_line = ''
+                command_list = ['yt-dlp', '-P', downloads_folder, link]
+                subprocess.run(command_list, shell=True, text=True)
     
+    #determines the type of entered link and creates and adds the preview to lv
     def show_previews(e):
-        preview_status=ft.Container(ft.Row([ft.Text('Loading Preview...', size=16), ft.ProgressRing(color='green', width=30, height=30),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5))
+        global preview_added, preview_invalid, preview_loading
+
+        preview_loading=ft.Container(ft.Row([ft.Text('Loading Preview...', size=16), ft.ProgressRing(color=main_color, width=30, height=30),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10,)
         main_control_bar.content.content.controls.pop(2)
-        main_control_bar.content.content.controls.insert(2, preview_status)
+        main_control_bar.content.content.controls.insert(2, preview_loading)
         main_control_bar.update()
-        if link_entry.value.strip() in song_list or link_entry.value == ' ':
+        if link_entry.value.strip() in song_list:
+            preview_added=ft.Container(ft.Row([ft.Text('Link Already Entered.', size=16), ft.IconButton(icon=ft.icons.LINK_OFF, style=ft.ButtonStyle(color=ft.colors.GREY), disabled=True),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10,)
+            main_control_bar.content.content.controls.pop(2)
+            main_control_bar.content.content.controls.insert(2, preview_added)
+            page.update()
             return
+        if link_entry.value == '' or link_entry.value == ' ' or all(tld not in link_entry.value for tld in tlds):
+            preview_invalid=ft.Container(ft.Row([ft.Text('Enter a Valid Link.', size=16), ft.IconButton(icon=ft.icons.LINK_OFF, style=ft.ButtonStyle(color=ft.colors.GREY), disabled=True),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10,)
+            main_control_bar.content.content.controls.pop(2)
+            main_control_bar.content.content.controls.insert(2, preview_invalid)
+            print('not a valid link')
+            page.update()
+            return
+        
         song_list.append(link_entry.value.strip())
         #print(song_list)
         try:
@@ -745,7 +935,7 @@ def main(page: ft.Page):
                 ft.Container( #control 3
                     content=ft.Column(
                         controls=[
-                        ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='green', icon =ft.icons.SAVE, height = 40, width = 150,on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
+                        ft.ElevatedButton("Download", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color=main_color, icon =ft.icons.SAVE, height = 40, width = 150,on_click=lambda e, link=link_entry.value, id=unique_id: indivudual_download(link)),
                         ft.ElevatedButton("Remove  ", style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=5)), color='grey', icon =ft.icons.DELETE,  height = 40, width = 150,on_click=lambda e, link=link_entry.value, id=unique_id: remove_control(link))
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
@@ -768,15 +958,17 @@ def main(page: ft.Page):
                 lv.content.controls.remove(preview_placeholder)
             lv.content.controls.insert(0, preview_tab)
 
-        main_control_bar.content.content.controls.remove(preview_status)
+        main_control_bar.content.content.controls.pop(2)
         main_control_bar.content.content.controls.insert(2, finished_status)
         main_control_bar.update()
         page.update()
 
+    #clears the url entry bar (link_entry)
     def clear_url(e):
         link_entry.value = ''
         link_entry.update()
 
+    #shows terminal output
     def show_terminal(e):
         if terminal in page.controls:
             page.controls.remove(terminal)
@@ -785,12 +977,16 @@ def main(page: ft.Page):
             page.controls.insert(-1, terminal)
             page.update()
 
+    #shows the settings
     def settings(e):
+        #clear the whole window
         for control in page.controls[:]:
             page.remove(control)
+        #draw the settings page
         page.add(settings_page)
         page.update()
-
+    
+    #removes an individual selected preview
     global remove_control
     def remove_control(link):
         global song_list
@@ -807,6 +1003,7 @@ def main(page: ft.Page):
             lv.content.controls.append(preview_placeholder)
         page.update()
 
+    #clears all previews from lv
     def remove_all_previews(e):
         global song_list
         global added_controls
@@ -820,9 +1017,10 @@ def main(page: ft.Page):
         added_controls = []
         print(song_list)    
 
+    #runs on_download for the selected item
     global indivudual_download
     def indivudual_download(link):
-        individual_status=ft.Container(ft.Row([ft.Text('Downloading...', size=16), ft.ProgressRing(color='green', width=30, height=30),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5))
+        individual_status=ft.Container(ft.Row([ft.Text('Downloading...', size=16), ft.ProgressRing(color=main_color, width=30, height=30),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10)
         
         for i, (uid, control) in enumerate(added_controls):
             if uid == link:
@@ -833,28 +1031,35 @@ def main(page: ft.Page):
                 main_control_bar.content.content.controls.insert(2, individual_status)
                 main_control_bar.update()
                 on_download(link)
-                main_control_bar.content.content.controls.remove(individual_status)
+                main_control_bar.content.content.controls.pop(2)
                 main_control_bar.content.content.controls.insert(2, finished_status)
                 main_control_bar.update()
 
+    #this runs when the download_all button is presses, runs on_download for each link in song_list
     def download_all(e):
         download_number=0
-        for i, (uid, control) in enumerate(added_controls):
-            download_button = control.content.content.controls[2].content.controls[0]
-            download_button.disabled = True
-            control.update()
-        for item in song_list[:]:
-            download_number = download_number +1
-            full_download_number=f"({download_number}/{len(song_list)})"
-            multiple_status=ft.Container(ft.Row([ft.Text(f'Downloading... {full_download_number}', size=16), ft.ProgressRing(color='green', width=30, height=30),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5))
+        if len(song_list) >= 1:  
+            for i, (uid, control) in enumerate(added_controls):
+                download_button = control.content.content.controls[2].content.controls[0]
+                download_button.disabled = True
+                control.update()
+            for item in song_list[:]:
+                download_number = download_number +1
+                full_download_number=f"({download_number}/{len(song_list)})"
+                multiple_status=ft.Container(ft.Row([ft.Text(f'Downloading... {full_download_number}', size=16), ft.ProgressRing(color=main_color, width=30, height=30),],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10)
+                main_control_bar.content.content.controls.pop(2)
+                main_control_bar.content.content.controls.insert(2, multiple_status)
+                main_control_bar.update()
+                on_download(item)
             main_control_bar.content.content.controls.pop(2)
-            main_control_bar.content.content.controls.insert(2, multiple_status)
+            main_control_bar.content.content.controls.insert(2, finished_status)
             main_control_bar.update()
-            on_download(item)
-        main_control_bar.content.content.controls.remove(multiple_status)
-        main_control_bar.content.content.controls.insert(2, finished_status)
-        main_control_bar.update()
-
+        else:
+            main_control_bar.content.content.controls.pop(2)
+            main_control_bar.content.content.controls.insert(2, preview_invalid)
+            main_control_bar.update()
+            
+    #this disables configuration options if the 'Auto' choice is selected
     def on_download_client_choice():  
         if downloader.value == 'Auto':
             format_choice.disabled = True
@@ -869,23 +1074,23 @@ def main(page: ft.Page):
         page.update()
         
     download_button = ft.IconButton( height="50", width='50', icon=ft.icons.ADD_LINK, tooltip='Add To Queue', style=ft.ButtonStyle(
-                      shape=ft.RoundedRectangleBorder(radius=5),bgcolor=ft.colors.BLACK26, color=ft.colors.GREEN), on_click=show_previews)
+                      shape=ft.RoundedRectangleBorder(radius=5),bgcolor=secondary_color, color=main_color), on_click=show_previews)
 
     clear_url_entry = ft.IconButton( icon=ft.icons.CLEAR, height="50",width=50, style=ft.ButtonStyle(
-                      shape=ft.RoundedRectangleBorder(radius=5),bgcolor=ft.colors.BLACK26, color='grey'), on_click=clear_url)
+                      shape=ft.RoundedRectangleBorder(radius=5),bgcolor=secondary_color, color='grey'), on_click=clear_url)
     
     main_control_bar = ft.Card(content=ft.Container(content=ft.Row([ft.IconButton( height="50", width=50, icon=ft.icons.DOWNLOADING_ROUNDED,  style=ft.ButtonStyle(
-                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=ft.colors.BLACK26,color=ft.colors.GREEN,), tooltip='Download All', on_click=download_all), ft.IconButton(height="50", width=50, icon=ft.icons.DELETE_FOREVER, style=ft.ButtonStyle(
-                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=ft.colors.BLACK26,color=ft.colors.GREY,), tooltip='Clear All', on_click=remove_all_previews), ft.Container(ft.Row([],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN,),width=405, height=50, bgcolor=ft.colors.BLACK12,padding=ft.Padding(left=10, top=5, right=10, bottom=5)), ft.IconButton( height="50", width=50,icon=ft.icons.SETTINGS, style=ft.ButtonStyle(
-                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=ft.colors.BLACK26,color=ft.colors.GREY,), tooltip='Settings',on_click=settings), ft.IconButton( height="50",width=50, icon=ft.icons.TERMINAL,  style=ft.ButtonStyle(
-                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=ft.colors.BLACK26,color=ft.colors.GREEN,), tooltip='Terminal output', on_click=show_terminal),], width=700, height=50), padding=ft.Padding(left=5, top=5, right=5, bottom=5)))
+                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=secondary_color,color=main_color,), tooltip='Download All', on_click=download_all), ft.IconButton(height="50", width=50, icon=ft.icons.DELETE_FOREVER, style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=secondary_color,color=ft.colors.GREY,), tooltip='Clear All', on_click=remove_all_previews), ft.Container(ft.Row([],expand=True, alignment=ft.MainAxisAlignment.SPACE_BETWEEN), width=405, height=50, bgcolor=bg_color, padding=ft.Padding(left=10, top=5, right=10, bottom=5), border_radius=10,), ft.IconButton( height="50", width=50,icon=ft.icons.SETTINGS, style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=secondary_color,color=ft.colors.GREY,), tooltip='Settings',on_click=settings), ft.IconButton( height="50",width=50, icon=ft.icons.TERMINAL,  style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=5), bgcolor=secondary_color,color=main_color,), tooltip='Terminal output', on_click=show_terminal),], width=700, height=50), padding=ft.Padding(left=5, top=5, right=5, bottom=5)))
 
     status_display = main_control_bar.content.content.controls[2]
     #how to remove the current status display
     #main_control_bar.content.content.controls.remove(status_display)
 
     row_1 = ft.Card(content=ft.Container(content=ft.Row(controls=[
-            ft.Text(value=" URL:", color="green", weight=ft.FontWeight.BOLD, size=15), 
+            url_text, 
             link_entry, clear_url_entry,
             download_button], alignment=ft.MainAxisAlignment.SPACE_EVENLY,  height='50', ),padding=ft.Padding(left=0, top=5, right=0, bottom=5) ))
     
@@ -903,16 +1108,23 @@ def main(page: ft.Page):
         embed_thumbnail,
         align_unselected_quality
     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
-    
-    #adds all the ui elements to the page
 
+    #adds all the ui elements to the page
     def draw_main_page():    
+        e=0
+        update_appearance(e)
         for control in page.controls[:]:
             page.remove(control)
         page.add(row_1, row_2, row_3, row_4, lv, main_control_bar,)
         page.update()
     
+    color_controls = [url_text, download_button, edit_path_button, embed_thumbnail, add_metadata, 
+                      main_control_bar.content.content.controls[0], 
+                      main_control_bar.content.content.controls[4]]
+
+    
     draw_main_page()
+    
 
 ft.app(target=main)
 
