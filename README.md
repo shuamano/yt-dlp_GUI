@@ -15,8 +15,8 @@
 
 
 ### Installation:
-first install `yt-dlp` and `spotdl` with their dependancies. then you can either compile this app from source or use a
-precompiled version which may or may not be available at the time of writing this
+simply download "yt-dlp_GUI.pyw" and run it. 
+The only prerequisite required is python itself; the GUI script will install dependancies on its own if they aren't already present.
 
 ### Usage:
 * Links:
@@ -27,3 +27,7 @@ precompiled version which may or may not be available at the time of writing thi
   In 'Auto' mode, ytmusic/spotify links will downoad as 128kps mp3's with metadata attached.
   regular yt links will be downloaded as mp4s w/audio, and other links will be determined by yt-dlp.
 
+### Missing features:
+* no error messages on failure
+* light theme looks abysmally terrible
+* proper progress tracking is non existant
