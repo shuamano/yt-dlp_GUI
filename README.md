@@ -16,16 +16,19 @@
 
 ### Installation:
 simply download "yt-dlp_GUI.pyw" and run it. 
-The only prerequisite required is python itself; the GUI script will install dependancies on its own if they aren't already present.
+__The only prerequisite required is python itself;__ the GUI script will install dependancies on its own if they aren't already present.
 
 ### Usage:
 * Links:
-  you can enter links from any site that is supported by yt-dlp.  
-   Only youtube and (most) spotify links get the cool previews tho.
+  
+  * Links can be entered from any site that is supported by yt-dlp.  
+    Only youtube and (most) spotify links get the cool previews tho.
 
-* Download behaviour:
-  In 'Auto' mode, ytmusic/spotify links will downoad as 128kps mp3's with metadata attached.
-  regular yt links will be downloaded as mp4s w/audio, and other links will be determined by yt-dlp.
+* Configuration:
+  
+  * In "Auto" mode, you can choose between downloading just Audio or Audo+Video.
+    In "Manual" mode, you can select a codec and a quality.
+  * Additional configuration options are present in the settings.
 
 ### Missing features:
 * no error messages on failure
