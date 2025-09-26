@@ -1,4 +1,4 @@
-#v.0.7, 9.15.25 9:38 PM
+#v.0.8, 9/26/25 2:22 PM
 #this is some of the shittiest code ever written
 import subprocess
 try:
@@ -1265,3 +1265,4 @@ def download(command, console):
     
 if __name__ == "__main__":    
     ft.app(target=main)
+
