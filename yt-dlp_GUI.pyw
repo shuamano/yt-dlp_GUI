@@ -1,5 +1,6 @@
 #v.0.7, 9.15.25 9:38 PM
 #this is some of the shittiest code ever written
+import subprocess
 try:
     import flet as ft
     import yt_dlp
@@ -18,7 +19,6 @@ except ImportError:
     import yt_dlp
     from humanfriendly import format_timespan, format_size
     import pyperclip
-import subprocess
 import os
 import requests
 from base64 import b64encode
@@ -56,6 +56,7 @@ if Path('yt-dlp_GUI_settings.json').is_file():
     auto_start = settings_stored['auto_start']
     crop_thumbnails = settings_stored['crop_thumbnails']
     saved_history_tabs = settings_stored['history']
+    open_console = settings_stored['open_console']
     if theme_setting == True:
         main_color= ft.Colors.GREEN
         secondary_color = ft.Colors.BLACK26
@@ -80,6 +81,7 @@ else:
     bg_color = ft.Colors.BLACK12
     preview_color  = ft.Colors.BLACK54
     saved_history_tabs = {}
+    open_console = False
 
 def get_spotify_data(link, token):
     
@@ -553,14 +555,15 @@ def main(page: ft.Page):
     def update_appearance_and_settings(e):
         """this updates widgets to match new theme settings and 
         saves all configurations/settings to a json"""
-        global secondary_color, bg_color, main_color, preview_color, auto_start, crop_thumbnails, client_id, client_secret, downloads_folder
+        global secondary_color, bg_color, main_color, preview_color, auto_start, crop_thumbnails, client_id, client_secret, downloads_folder, open_console
         transparent_value =  appearance_settings.content.content.controls[1].content.controls[1].controls[1].value
         theme_selection = appearance_settings.content.content.controls[1].content.controls[0].controls[1].value
         client_id = spotify_api_settings.content.content.controls[1].content.controls[0].value
         client_secret = spotify_api_settings.content.content.controls[1].content.controls[1].value
         crop_thumbnails = downloading_settings.content.content.controls[1].content.controls[0].controls[1].value
         auto_start = downloading_settings.content.content.controls[1].content.controls[1].controls[1].value
-        save_location = downloading_settings.content.content.controls[1].content.controls[2].controls[1].value
+        save_location = downloading_settings.content.content.controls[1].content.controls[3].controls[1].controls[0].value
+        open_console = downloading_settings.content.content.controls[1].content.controls[2].controls[1].value
         #check what the screen transparency should be
         if transparent_value != 0:    
             page.window.opacity = transparent_value
@@ -618,7 +621,7 @@ def main(page: ft.Page):
         downloading_settings.content.content.controls[1].content.controls[0].controls[1].active_color = main_color
 
         #save the settings in a json
-        settings_config = {"theme": theme_selection, "transparency": transparent_value, "client_id": client_id, "client_secret": client_secret, "save_location": save_location, "auto_start": auto_start, "crop_thumbnails": crop_thumbnails, 'history': saved_history_tabs}
+        settings_config = {"theme": theme_selection, "transparency": transparent_value, "client_id": client_id, "client_secret": client_secret, "save_location": save_location, "auto_start": auto_start, "crop_thumbnails": crop_thumbnails, "open_console": open_console, 'history': saved_history_tabs}
         with open("yt-dlp_GUI_settings.json", mode="w", encoding="utf-8") as write_file:
             json.dump(settings_config, write_file, indent=4)
 
@@ -635,8 +638,8 @@ def main(page: ft.Page):
             output_path.update()
         else:
             output_path.value = e.path
-            downloading_settings.content.content.controls[1].content.controls[2].controls[1].value = e.path
-            downloading_settings.content.content.controls[1].content.controls[2].controls[1].update()
+            downloading_settings.content.content.controls[1].content.controls[3].controls[1].controls[0].value = e.path
+            downloading_settings.content.content.controls[1].content.controls[3].controls[1].controls[0].update()
 
     file_picker = ft.FilePicker(on_result=on_dialog_result)
     page.overlay.append(file_picker)
@@ -810,11 +813,12 @@ def main(page: ft.Page):
     settings_page = ft.Container(content=ft.Column([ft.Row([settings_back_button, settings_spacer, settings_text,],alignment=ft.MainAxisAlignment.SPACE_BETWEEN, height=50),settings_list], expand = True), padding=ft.Padding(left=5, top=5, right=5, bottom=5),width=700, expand=True)
     
     spotify_api_settings = ft.Card(content=ft.Container(content=ft.Column([ft.Text(' Spotify API Credentials', color=main_color, theme_style=ft.TextThemeStyle.TITLE_MEDIUM), ft.Container(content=ft.Column(controls=[ft.TextField(label='Client ID', value=client_id), ft.TextField(label='Client Secret', value=client_secret)] ), padding=ft.Padding(left=0, top=10, right=0, bottom=0)) ], width=700,), padding=10, ))
-    appearance_settings = ft.Card(ft.Container(ft.Column([ft.Text(' Appearance', color=main_color, theme_style=ft.TextThemeStyle.TITLE_MEDIUM), ft.Container(ft.Column([ft.Row([ft.Text('Dark Mode ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=theme_setting, on_change=update_appearance_and_settings)]), ft.Row([ft.Text('Transparency ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Slider(min=0, max=100, divisions=10, label="{value}%", active_color=main_color, on_change=update_appearance_and_settings, value=transparency_setting)]) ]), padding=ft.Padding(left=5, top=5, right=0, bottom=0))]), padding=10))
-    downloading_settings = ft.Card(ft.Container(ft.Column([ft.Text(' Downloading', color=main_color, theme_style=ft.TextThemeStyle.TITLE_MEDIUM), ft.Container(ft.Column([
-        ft.Row([ft.Text(' Crop Thumbnails to 1:1 ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=crop_thumbnails, on_change=update_appearance_and_settings)]),
-        ft.Row([ft.Text(' Auto-start downloads ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=auto_start, on_change=update_appearance_and_settings)]),
-        ft.Row([ft.Text(' Default save location: ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.TextField(label="Output destination", read_only=True, value=downloads_folder, width='250', height = '45'), edit_path_button])
+    appearance_settings = ft.Card(ft.Container(ft.Column([ft.Text(' Appearance:', color=main_color, theme_style=ft.TextThemeStyle.TITLE_MEDIUM), ft.Container(ft.Column([ft.Row([ft.Text('Dark Mode: ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=theme_setting, on_change=update_appearance_and_settings)], alignment=ft.MainAxisAlignment.SPACE_BETWEEN), ft.Row([ft.Text('Transparency: ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Slider(min=0, max=100, divisions=10, label="{value}%", active_color=main_color, on_change=update_appearance_and_settings, value=transparency_setting)], alignment=ft.MainAxisAlignment.SPACE_BETWEEN) ]), padding=ft.Padding(left=5, top=5, right=0, bottom=0))]), padding=10))
+    downloading_settings = ft.Card(ft.Container(ft.Column([ft.Text(' Downloading:', color=main_color, theme_style=ft.TextThemeStyle.TITLE_MEDIUM), ft.Container(ft.Column([
+        ft.Row([ft.Text(' Crop Thumbnails to 1:1: ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=crop_thumbnails, on_change=update_appearance_and_settings)], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+        ft.Row([ft.Text(' Auto-start downloads: ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=auto_start, on_change=update_appearance_and_settings)], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+        ft.Row([ft.Text(' Open a console window for each download: ', theme_style=ft.TextThemeStyle.TITLE_SMALL),ft.Switch( active_color=main_color, value=open_console, on_change=update_appearance_and_settings)], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+        ft.Row([ft.Text(' Default save location: ', theme_style=ft.TextThemeStyle.TITLE_SMALL), ft.Row([ft.TextField(label="Output destination", read_only=True, value=downloads_folder, width='250', height = '45'), edit_path_button])], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
     ]))], ),padding=10))
     
     settings_list.content.controls.append(appearance_settings)
@@ -1202,7 +1206,7 @@ def main(page: ft.Page):
                                 flags[item] = True
                                 command = compile_command(item)
                                 update_button_status(control, "downloading")
-                                download_threads[item] = threading.Thread(target=download_container, args=(item, control, command))
+                                download_threads[item] = threading.Thread(target=download_container, args=(item, control, command, open_console))
                                 download_threads[item].start()      
                                 update_button_status(control, "disabled")
             if len(download_threads) != 0:
@@ -1220,12 +1224,12 @@ def main(page: ft.Page):
     
     draw_main_page()
 
-def download_container(link, control, command):
+def download_container(link, control, command, open_console):
     global queue
     global download_threads
     global finished_threads
    
-    p1 = Process(target=download, args=(command,))
+    p1 = Process(target=download, args=(command, open_console))
     p1.start()
 
     while p1.is_alive():
@@ -1252,8 +1256,11 @@ def download_container(link, control, command):
         update_status_bar(finished_status,)
         return
 
-def download(command):
-    result = subprocess.run(command, text=True, check=True)
+def download(command, console):
+    if console == True:
+       result = subprocess.run(command, text=True, check=True)  
+    else:
+        result = subprocess.run(command, text=True, check=True, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(result)
     
 if __name__ == "__main__":    
