@@ -1,24 +1,19 @@
-#v.0.8, 9/26/25 2:22 PM
+#v.0.8, 9/26/25
 #this is some of the shittiest code ever written
-import subprocess
-try:
-    import flet as ft
-    import yt_dlp
-    from humanfriendly import format_timespan, format_size
-    import pyperclip
-    import spotdl
-except ImportError:
-    import subprocess
-    import sys
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'flet'])
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'yt-dlp'])
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'humanfriendly'])
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyperclip'])
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'spotdl'])
-    import flet as ft
-    import yt_dlp
-    from humanfriendly import format_timespan, format_size
-    import pyperclip
+
+import importlib.metadata, subprocess, sys
+required = {'flet', 'yt-dlp', 'humanfriendly', 'pyperclip', 'spotdl'}
+installed = {pkg.metadata['Name'] for pkg in importlib.metadata.distributions()}
+missing = required - installed
+
+if missing: 
+    print(missing)
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', *missing])
+
+import flet as ft
+import yt_dlp
+from humanfriendly import format_timespan, format_size
+import pyperclip
 import os
 import requests
 from base64 import b64encode
@@ -1265,4 +1260,3 @@ def download(command, console):
     
 if __name__ == "__main__":    
     ft.app(target=main)
-
