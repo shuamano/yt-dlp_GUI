@@ -7,7 +7,7 @@ installed = {pkg.metadata['Name'] for pkg in importlib.metadata.distributions()}
 missing = required - installed
 
 if missing: 
-    print(missing)
+    #print(missing)
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', *missing])
 
 import flet as ft
@@ -1260,3 +1260,4 @@ def download(command, console):
     
 if __name__ == "__main__":    
     ft.app(target=main)
+
