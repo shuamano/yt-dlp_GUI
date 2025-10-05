@@ -1,6 +1,6 @@
 # yt-dlp_GUI
 
-### A simple GUI for yt-dlp and spotdl (work in progress)
+### A simple GUI for yt-dlp and spotdl (work in progress!)
 
 
 * enter a link
